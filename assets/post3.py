@@ -2,7 +2,7 @@
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 W, H = 1080, 1350
-WM = Image.open('/home/claude/p1/wordmark.png').convert('RGBA')
+WM = Image.open('/home/claude/p1/wordmark_neutral.png').convert('RGBA')
 
 def post_bg(path):
     b = Image.open(path).convert('RGB')

@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 W, H, FPS, DUR = 1080, 1920, 30, 7.0
 F = '/usr/share/fonts/'
-WM = Image.open('/home/claude/p1/wordmark.png').convert('RGBA')
+WM = Image.open('/home/claude/p1/wordmark_neutral.png').convert('RGBA')
 
 def ease(t):  # easeOutCubic clamp
     t = max(0, min(1, t)); return 1 - (1 - t) ** 3
@@ -206,7 +206,7 @@ def frame_path(inset=46):
     seg = [math.dist(pts[k], pts[k + 1]) for k in range(5)]
     return pts, seg, sum(seg)
 
-def render(bg, out, name, sub=None, items=None, fx=None, parallax=True, seed=1, show_wm=True, ty=None, style='classic'):
+def render(bg, out, name, sub=None, items=None, fx=None, parallax=True, seed=1, show_wm=True, ty=None, style='classic', cycle=None, dur=None):
     fx = fx or {}
     base, top = to_story(bg)
     base = base.convert('RGBA')
@@ -235,14 +235,16 @@ def render(bg, out, name, sub=None, items=None, fx=None, parallax=True, seed=1, 
     pill, _ = pill_layer(); handle = gold_layer('@rax3d.sa', f_h, 2)
     wm = WM.resize((340, int(WM.height * 340 / WM.width)), Image.LANCZOS)
     prod = product_layer(items) if items else None
+    cyc = [product_layer(it) for it in cycle] if cycle else None
     ty = ty or (470 if top else 560)
     D = {'classic': 0, 'enter': 1.2, 'spotlight': 2.0, 'cinematic': 1.0, 'frame': 1.6}[style]
     if style == 'frame': pts, seg, tot = frame_path()
     ff = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
                            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '19', '-preset', 'medium', '-movflags', '+faststart', out], stdin=subprocess.PIPE)
-    N = int(FPS * DUR)
+    DD = dur or DUR
+    N = int(FPS * DD)
     for i in range(N):
-        t = i / FPS; u = t / DUR; tt = t - D
+        t = i / FPS; u = t / DD; tt = t - D
         s = 1.0 + 0.06 * u
         fr = zoom(soft if parallax else base, s)
         if parallax:
@@ -306,6 +308,14 @@ def render(bg, out, name, sub=None, items=None, fx=None, parallax=True, seed=1, 
             t2 = sweep(T2, (tt - 2.0) / 1.0) if 2.0 < tt < 3.0 else T2
             put(fr, t2, W / 2, ty, a2, .85 + .15 * ease_back((tt - .65) / .7))
         if T3: a3 = ease((tt - 1.0) / .6); put(fr, T3, W / 2, ty + 115, a3)
+        if cyc:
+            t0 = tt - .8
+            if t0 > 0:
+                seg = (DD - D - .8) / len(cyc); k = min(len(cyc) - 1, int(t0 / seg)); lt = t0 - k * seg
+                a_in = ease(lt / .6); a_out = 1 - ease((lt - (seg - .5)) / .5) if k < len(cyc) - 1 else 1
+                ap = max(0, min(a_in, a_out)); bob = 8 * math.sin(t * 1.6)
+                pl = cyc[k].copy(); pl.putalpha(cyc[k].split()[3].point(lambda v: int(v * ap)))
+                fr.alpha_composite(pl, (0, int(50 * (1 - a_in) + bob)))
         if prod:
             ap = ease((tt - .8) / 1.0); bob = 8 * math.sin(t * 1.6) * ap
             pl = prod
