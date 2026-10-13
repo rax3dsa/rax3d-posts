@@ -35,3 +35,31 @@ def place(c, p, cx, bottom, h=None, w=None):
     ref.putalpha(Image.fromarray((ra * np.linspace(.25, 0, ref.height)[:, None]).astype(np.uint8)))
     c.alpha_composite(ref.filter(ImageFilter.GaussianBlur(2)), (x, bottom + 2)); c.alpha_composite(p, (x, y))
     return c
+
+# ---- approved header/footer text (matches older feed posts) ----
+from PIL import ImageFont
+_F = '/usr/share/fonts/'
+INK = (58, 52, 46, 255)
+
+def _ctext(c, y, text, font, fill, track=0):
+    d = ImageDraw.Draw(c)
+    ws = [font.getlength(ch) for ch in text]; tw = sum(ws) + track * (len(text) - 1); x = (W - tw) / 2
+    for ch, w in zip(text, ws): d.text((x, y), ch, font=font, fill=fill, anchor='lm'); x += w + track
+
+def post_text_bg(path):
+    """Background with mist, text header 'RAX3D / @rax3d.sa' (no image wordmark)."""
+    b = Image.open(path).convert('RGB')
+    s = H / b.height; b = b.resize((int(b.width * s), H), Image.LANCZOS)
+    x = (b.width - W) // 2; b = b.crop((x, 0, x + W, H)).convert('RGBA')
+    yy = np.arange(H)[:, None].astype(float)
+    a = np.maximum(np.clip((300 - yy) / 300, 0, 1) ** 1.2 * .6, np.clip((yy - 1130) / 110, 0, 1) * .8)
+    mist = Image.new('RGBA', (W, H), (250, 244, 234, 0)); mist.putalpha(Image.fromarray((np.repeat(a, W, 1) * 255).astype(np.uint8)))
+    b.alpha_composite(mist)
+    _ctext(b, 100, 'RAX3D', ImageFont.truetype(_F + 'opentype/inter/InterDisplay-Bold.otf', 64), INK, 1)
+    _ctext(b, 150, '@rax3d.sa', ImageFont.truetype(_F + 'opentype/inter/Inter-Regular.otf', 24) if __import__('os').path.exists(_F + 'opentype/inter/Inter-Regular.otf') else ImageFont.truetype(_F + 'truetype/google-fonts/Poppins-Regular.ttf', 24), (95, 88, 80, 255))
+    return b
+
+def post_footer(c, title, sub='Printed in the color you choose — DM to order'):
+    _ctext(c, 1222, title, ImageFont.truetype(_F + 'opentype/inter/InterDisplay-Medium.otf', 32) if __import__('os').path.exists(_F + 'opentype/inter/InterDisplay-Medium.otf') else ImageFont.truetype(_F + 'truetype/google-fonts/Poppins-Medium.ttf', 30), INK)
+    _ctext(c, 1266, sub, ImageFont.truetype(_F + 'truetype/google-fonts/Poppins-Regular.ttf', 21), (110, 102, 94, 255))
+    return c

@@ -48,7 +48,11 @@ def color_clip(bg, out, name, product_png, prod_w=960, bottom=1430, per=.75, see
     F = '/usr/share/fonts/'
     T1 = gold_layer('NEW ARRIVAL', ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Medium.ttf', 36), 14)
     T2 = gold_layer(name, ImageFont.truetype(F + 'opentype/inter/InterDisplay-Bold.otf', 150 if len(name) <= 9 else int(150 * 9 / len(name)) + 10))
-    T3 = gold_layer(sub, ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Medium.ttf', 44), 10)
+    fs = 44
+    while True:
+        T3 = gold_layer(sub, ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Medium.ttf', fs), 10)
+        if T3.width <= 960 or fs <= 26: break
+        fs -= 2
     wm = WM.resize((340, int(WM.height * 340 / WM.width)), Image.LANCZOS)
     pill, _ = pill_layer(); hd = gold_layer('@rax3d.sa', ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Medium.ttf', 34), 2)
     prod = Image.open(product_png).convert('RGBA'); prod = prod.crop(prod.getbbox())

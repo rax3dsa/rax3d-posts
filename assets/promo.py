@@ -85,7 +85,7 @@ def phone_card(post_img, w=560):
 
 def big_heart(size):
     im = Image.new('RGBA', (size, size)); d = ImageDraw.Draw(im); r = size * .25; cx, cy = size / 2, size * .4
-    c = (255, 255, 255, 255)
+    c = (237, 73, 86, 255)  # Instagram like red (approved: double-tap heart is always red)
     d.ellipse([cx - 2 * r, cy - r, cx, cy + r], fill=c); d.ellipse([cx, cy - r, cx + 2 * r, cy + r], fill=c)
     d.polygon([(cx - 1.93 * r, cy + .35 * r), (cx + 1.93 * r, cy + .35 * r), (cx, cy + 2.3 * r)], fill=c)
     sh = Image.new('RGBA', (size, size), (0, 0, 0, 0)); sh.putalpha(im.split()[3].filter(ImageFilter.GaussianBlur(10)).point(lambda v: v // 3))
