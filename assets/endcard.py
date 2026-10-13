@@ -17,7 +17,7 @@ def make_endcard(bg, out, dur=3.0, seed=2):
     P = make_particles({}, seed)
     wm = WM.resize((420, int(WM.height * 420 / WM.width)), Image.LANCZOS)
     big = ImageFont.truetype(F + 'opentype/inter/InterDisplay-Bold.otf', 92)
-    L1 = gold_layer('Turn Your Idea', big); L2 = gold_layer('Into 3D', big)
+    L1 = gold_layer('Order Your Piece', big); L2 = gold_layer('Printed In 3D', big)
     L3 = gold_layer('In The Color You Choose', ImageFont.truetype(F + 'opentype/inter/InterDisplay-Bold.otf', 64))
     L4 = plain('DM us on Instagram', ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Medium.ttf', 44), (95, 70, 30, 255))
     L5 = gold_layer('@rax3d.sa', ImageFont.truetype(F + 'truetype/google-fonts/Poppins-Bold.ttf', 66), 2)

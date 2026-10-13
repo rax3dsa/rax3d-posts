@@ -54,7 +54,9 @@ def whoosh(dur):
     return out * (t / dur) ** 2
 
 def add(buf, x, at, g=1.0):
-    i = int(at * SR); j = min(len(buf), i + len(x))
+    i = int(at * SR)
+    if i < 0: x = x[-i:]; i = 0
+    j = min(len(buf), i + len(x))
     if i < len(buf): buf[i:j] += g * x[:j - i]
 
 def make(dur=7.0, land=2.2, appear=2.8, bpm=96, seed=3, out='music.wav'):
