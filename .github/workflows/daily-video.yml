@@ -4,7 +4,7 @@ name: Daily product video
 # النشر على Snapchat يدوي حاليًا (لا مفتاح API بعد)؛ راجع daily/README.md.
 on:
   schedule:
-    - cron: '17 5 * * *'      # 08:17 بتوقيت الرياض
+    - cron: '17 5 1,5,9,13,17,21,25,29 * *'      # كل 4 أيام (المالك 11-27) 08:17 بتوقيت الرياض
   workflow_dispatch:
     inputs:
       id:   { description: 'معرّف القطعة (اختياري)', required: false, default: '' }
